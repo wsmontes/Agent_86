@@ -21,17 +21,34 @@ A powerful AI agent built with llama.cpp and guidance-ai, featuring native reaso
 
 ## 🛠️ Installation
 
-### 1. Clone or Download
+### 1. Clone the Repository
 ```bash
+git clone https://github.com/wsmontes/Agent_86.git
 cd Agent_86
 ```
 
-### 2. Create Virtual Environment
+### 2. Download the Model
+Download the LFM2.5-1.2B-Instruct model (Q4_K_M quantization) from Hugging Face:
+
+```bash
+# Using wget (Linux/macOS)
+wget https://huggingface.co/bartowski/LFM-3B-GGUF/resolve/main/LFM2.5-1.2B-Instruct-Q4_K_M.gguf
+
+# Using curl
+curl -L -o LFM2.5-1.2B-Instruct-Q4_K_M.gguf https://huggingface.co/bartowski/LFM-3B-GGUF/resolve/main/LFM2.5-1.2B-Instruct-Q4_K_M.gguf
+
+# Or download manually from:
+# https://huggingface.co/bartowski/LFM-3B-GGUF/blob/main/LFM2.5-1.2B-Instruct-Q4_K_M.gguf
+```
+
+Place the downloaded `.gguf` file in the root directory of the project.
+
+### 3. Create Virtual Environment
 ```bash
 python -m venv venv
 ```
 
-### 3. Activate Virtual Environment
+### 4. Activate Virtual Environment
 **Windows:**
 ```bash
 venv\Scripts\activate
@@ -42,12 +59,12 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
-### 4. Install Dependencies
+### 5. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Configure Environment
+### 6. Configure Environment
 ```bash
 copy .env.example .env
 # Edit .env if needed
