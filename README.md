@@ -72,23 +72,34 @@ copy .env.example .env
 
 ## 🎯 Usage
 
-### Run the Agent
+### Quick Start
+Run the agent with the convenient launcher script:
+
+```bash
+# Interactive mode - will prompt for goal
+python run_agent.py
+
+# With goal directly from command line
+python run_agent.py "List all Python files in the current directory"
+
+# Complex goals
+python run_agent.py "Check system information and list running processes"
+```
+
+### Alternative: Module Mode
 ```bash
 python -m src.main
 ```
 
-The agent will prompt you for a goal. Examples:
-- "Create a Python script to calculate fibonacci numbers"
-- "Check if port 8080 is available on this system"
-- "Find the current weather in New York"
-
 ### Example Session
 ```
-Agent 86
-A powerful AI agent using llama.cpp and guidance-ai
+=== Agent 86 ===
 
-Enter your goal (or 'quit' to exit):
+Enter your goal (or press Enter for default):
 > List all Python files in the current directory
+
+🎯 Goal: List all Python files in the current directory
+============================================================
 
 Running agent...
 
