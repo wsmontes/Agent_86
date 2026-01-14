@@ -1,0 +1,68 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Create Virtual Environment",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "-m",
+                "venv",
+                "venv"
+            ],
+            "problemMatcher": [],
+            "group": "none"
+        },
+        {
+            "label": "Install Dependencies",
+            "type": "shell",
+            "command": "${workspaceFolder}/venv/Scripts/python.exe",
+            "args": [
+                "-m",
+                "pip",
+                "install",
+                "-r",
+                "requirements.txt"
+            ],
+            "problemMatcher": [],
+            "group": "none"
+        },
+        {
+            "label": "Run Agent",
+            "type": "shell",
+            "command": "${workspaceFolder}/venv/Scripts/python.exe",
+            "args": [
+                "-m",
+                "src.main"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Run Tests",
+            "type": "shell",
+            "command": "${workspaceFolder}/venv/Scripts/python.exe",
+            "args": [
+                "-m",
+                "pytest",
+                "tests",
+                "-v",
+                "--cov=src"
+            ],
+            "problemMatcher": [],
+            "group": "test"
+        },
+        {
+            "label": "Setup Project",
+            "dependsOn": [
+                "Create Virtual Environment",
+                "Install Dependencies"
+            ],
+            "problemMatcher": [],
+            "group": "none"
+        }
+    ]
+}
