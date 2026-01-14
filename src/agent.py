@@ -3,6 +3,7 @@
 from typing import Any, Optional
 import json
 import re
+import platform
 
 import guidance
 from guidance import gen, select, system, user, assistant
@@ -76,6 +77,8 @@ class Agent:
         
         Args:
             settings: Application settings
+            self.os_type = platform.system()  # 'Windows', 'Linux', 'Darwin'
+            self.is_windows = self.os_type == 'Windows'
         """
         self.settings = settings
         self.llm_engine = LLMEngine(settings)
@@ -93,23 +96,42 @@ class Agent:
         logger.info("Agent loaded successfully")
     
     def _get_system_prompt(self) -> str:
-        """Get system prompt with tool definitions in LFM2.5 format.
+        """Get system prompt with OS-specific command guidance."""
+        os_name = "Windows" if self.is_windows else "Linux/Mac"
         
-        Returns:
-            System prompt with tool list
-        """
+        # Provide OS-specific command mappings
+        if self.is_windows:
+            cmd_examples = """
+    Common Windows Commands:
+    - List files: dir
+    - Show file: type filename.txt
+    - Current dir: cd
+    - Make dir: mkdir dirname
+    - Remove file: del filename.txt"""
+        else:
+            cmd_examples = """
+    Common Unix Commands:
+    - List files: ls
+    - Show file: cat filename.txt
+    - Current dir: pwd
+    - Make dir: mkdir dirname
+    - Remove file: rm filename.txt"""
+        
         tools_json = json.dumps(self.TOOLS_DEFINITION, indent=2)
         return f"""<|im_start|>system
-You are a helpful AI assistant with access to tools for executing commands and fetching data.
+    You are a helpful AI assistant with access to tools for executing commands and fetching data.
 
-Available tools:
-<|tool_list_start|>{tools_json}<|tool_list_end|>
+    IMPORTANT: You are running on {os_name}.
+    {cmd_examples}
 
-When you need to use a tool, write a function call in this format:
-<|tool_call_start|>[terminal(command="ls")]<|tool_call_end|>
-<|tool_call_start|>[internet(url="https://example.com")]<|tool_call_end|>
+    Available tools:
+    <|tool_list_start|>{tools_json}<|tool_list_end|>
 
-After using a tool, you will receive the result. Then provide your final answer.<|im_end|>"""
+    When you need to use a tool, write a function call in this format:
+    <|tool_call_start|>[terminal(command="dir")]<|tool_call_end|>
+    <|tool_call_start|>[internet(url="https://example.com")]<|tool_call_end|>
+
+    Use {os_name}-specific commands. Do not use commands from other operating systems.<|im_end|>"""
     
     def _parse_tool_calls(self, response: str) -> list[dict]:
         """Parse tool calls from LFM2.5 response format.
@@ -327,9 +349,18 @@ Task 1:"""
 INSTRUCTIONS:
 1. If you need to run a command, use: <|tool_call_start|>[terminal(command="your command")]<|tool_call_end|>
 2. If you need to fetch a URL, use: <|tool_call_start|>[internet(url="https://example.com")]<|tool_call_end|>
-3. If task is complete, just explain the result.
+3. If a tool returns an error, READ IT and adapt your approach (e.g., Windows vs Linux commands)
+4. If task is complete, just explain the result.
 
-Always use the tool call format above. Do not write URLs or commands in plain text - wrap them in tool calls."""
+COMMON COMMANDS BY OPERATING SYSTEM:
+- List files: Windows = "dir", Linux/Mac = "ls"
+- Show file content: Windows = "type filename", Linux/Mac = "cat filename"
+- Current directory: Windows = "cd", Linux/Mac = "pwd"
+
+If you see error "not recognized as internal or external command", you are on Windows - use Windows commands!
+
+Always use the tool call format above. Do not write URLs or commands in plain text - wrap them in tool calls.
+Do not repeat commands that already failed - try different commands based on the error message."""
         
         # Build complete prompt with startoftext token - implements full tool use cycle
         # Note: llama.cpp may add <|startoftext|> automatically, so we omit it to avoid duplication
